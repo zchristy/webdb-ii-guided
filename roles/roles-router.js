@@ -1,28 +1,68 @@
 const router = require('express').Router();
 
+const rolesDb = require('./roles-model.js')
+
 router.get('/', (req, res) => {
-  // get the roles from the database
-  res.send('Write code to retrieve all roles');
+  rolesDb.find()
+  .then(roles => {
+    res.status(200).json(roles)
+  })
+  .catch(err => {
+    res.status(500).json({error: "Bad Request", err})
+  })
 });
 
 router.get('/:id', (req, res) => {
-  // retrieve a role by id
-  res.send('Write code to retrieve a role by id');
+  rolesDb.findById(req.params.id)
+  .then(role => {
+    if(role){
+      res.status(200).json(role)
+    } else {
+      res.status(404).json({message: "Role not found"})
+    }
+  })
+  .catch(err => {
+    res.status(500).json({error: "Bad Request", err})
+  })
 });
 
 router.post('/', (req, res) => {
-  // add a role to the database
-  res.send('Write code to add a role');
+  rolesDb.add(req.body)
+  .then(ids => {
+    res.status(201).json(ids)
+  })
+  .catch(err => {
+    res.status(500).json({error: "Bad Request", err})
+  })
 });
 
 router.put('/:id', (req, res) => {
-  // update roles
-  res.send('Write code to modify a role');
+  rolesDb.update(req.params.id, req.body)
+  .then(count => {
+    if(count > 0) {
+      res.status(200).json({message: `${count} records updated`})
+    } else {
+      res.status(404).json({message: "Role not found"})
+    }
+  })
+  .catch(err => {
+    res.status(500).json({error: "Bad Request", err})
+  })
 });
 
 router.delete('/:id', (req, res) => {
-  // remove roles (inactivate the role)
-  res.send('Write code to remove a role');
+  rolesDb.remove(req.params.id)
+  .then(count => {
+    if(count > 0) {
+      const unit = count > 1 ? 'records' : 'record'
+      res.status(200).json({message: `${count} ${unit} deleted`})
+    } else {
+      res.status(404).json({message: "Role not found"})
+    }
+  })
+  .catch(err => {
+    res.status(500).json({error: "Bad Request", err})
+  })
 });
 
 module.exports = router;
